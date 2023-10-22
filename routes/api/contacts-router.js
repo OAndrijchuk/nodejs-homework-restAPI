@@ -1,15 +1,13 @@
 import expres from "express";
 import { validateBody } from "../../decorators/index.js";
 import contactControllerrs from "../../controllers/contact-controllerrs.js";
-import {
-  contactAddShema,
-  contactUpdateShema,
-} from "../../joiShemas/contacts-shema.js";
+import { contactAddShema } from "../../models/contacts/contacts.js";
+
 const contactRouter = expres.Router();
 
 contactRouter.get("/", contactControllerrs.getAllContacts);
 
-contactRouter.get("/:contactId", contactControllerrs.getContactById);
+// contactRouter.get("/:contactId", contactControllerrs.getContactById);
 
 contactRouter.post(
   "/",
@@ -17,12 +15,12 @@ contactRouter.post(
   contactControllerrs.addContact
 );
 
-contactRouter.delete("/:contactId", contactControllerrs.removeContact);
+// contactRouter.delete("/:contactId", contactControllerrs.removeContact);
 
-contactRouter.put(
-  "/:contactId",
-  validateBody(contactUpdateShema),
-  contactControllerrs.updateContact
-);
+// contactRouter.put(
+//   "/:contactId",
+//   validateBody(contactUpdateShema),
+//   contactControllerrs.updateContact
+// );
 
 export default contactRouter;
