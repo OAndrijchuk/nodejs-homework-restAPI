@@ -63,7 +63,7 @@
 // };
 import Joi from "joi";
 import { Schema, model } from "mongoose";
-import { handleSaveError } from "./hooks.js";
+import { handleSaveError, preUpdate } from "./hooks.js";
 
 const contactsShema = new Schema(
   {
@@ -86,6 +86,8 @@ const contactsShema = new Schema(
 );
 
 contactsShema.post("save", handleSaveError);
+contactsShema.post("findOneAndUpdate", handleSaveError);
+contactsShema.pre("findOneAndUpdate", preUpdate);
 
 // =================JOI_Shema==============================
 export const contactAddShema = Joi.object({
@@ -107,7 +109,9 @@ export const contactAddShema = Joi.object({
     "string.min": `"phone" should have a minimum length of {#limit}`,
     "any.required": `"phone" is a required field`,
   }),
-  favorite: Joi.boolean().required(),
+  favorite: Joi.boolean().required().messages({
+    "any.required": `"favorite" is a required field`,
+  }),
 });
 export const contactUpdateShema = Joi.object({
   name: Joi.string().min(1).messages({
@@ -126,6 +130,11 @@ export const contactUpdateShema = Joi.object({
     "string.min": `"phone" should have a minimum length of {#limit}`,
   }),
   favorite: Joi.boolean(),
+});
+export const contactPatchShema = Joi.object({
+  favorite: Joi.boolean().required().messages({
+    "any.required": `missing field favorite`,
+  }),
 });
 // ========================================================
 
