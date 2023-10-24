@@ -1,14 +1,15 @@
 import { HttpError } from "../helpers/index.js";
-import * as contactService from "../models/contacts/contacts.js";
+import Contact from "../models/contacts/contacts.js";
 import { controllerWrapper } from "../decorators/index.js";
 
 const getAllContacts = async (req, res) => {
-  const rezult = await contactService.listContacts();
+  const rezult = await Contact.find();
   res.json(rezult);
 };
 
 const getContactById = async (req, res) => {
-  const rezult = await contactService.getContactById(req.params.contactId);
+  // const rezult = await Contact.findOne(req.params.contactId);
+  const rezult = await Contact.findById(req.params.contactId);
   if (!rezult) {
     throw HttpError(404, `Contact with id:${req.params.contactId} not found`);
   }
@@ -16,7 +17,7 @@ const getContactById = async (req, res) => {
 };
 
 const addContact = async (req, res) => {
-  const rezult = await contactService.addContact(req.body);
+  const rezult = await Contact.create(req.body);
   res.status(201).json(rezult);
 };
 
@@ -25,7 +26,20 @@ const updateContact = async (req, res) => {
     params: { contactId },
     body,
   } = req;
-  const rezult = await contactService.updateContact(contactId, body);
+  const rezult = await Contact.findByIdAndUpdate(contactId, body);
+  if (!rezult) {
+    throw HttpError(404, `Contact with id:${contactId} not found`);
+  }
+  res.json(rezult);
+};
+
+const updateStatusContact = async (req, res) => {
+  const {
+    params: { contactId },
+    body,
+  } = req;
+
+  const rezult = await Contact.findByIdAndUpdate(contactId, body);
   if (!rezult) {
     throw HttpError(404, `Contact with id:${contactId} not found`);
   }
@@ -34,7 +48,7 @@ const updateContact = async (req, res) => {
 
 const removeContact = async (req, res) => {
   const { contactId } = req.params;
-  const rezult = await contactService.removeContact(contactId);
+  const rezult = await Contact.findByIdAndDelete(contactId);
   if (!rezult) {
     throw HttpError(404, `Contact with id:${contactId} not found`);
   }
@@ -45,6 +59,7 @@ export default {
   getAllContacts: controllerWrapper(getAllContacts),
   getContactById: controllerWrapper(getContactById),
   addContact: controllerWrapper(addContact),
-  removeContact: controllerWrapper(removeContact),
   updateContact: controllerWrapper(updateContact),
+  updateStatusContact: controllerWrapper(updateStatusContact),
+  removeContact: controllerWrapper(removeContact),
 };
