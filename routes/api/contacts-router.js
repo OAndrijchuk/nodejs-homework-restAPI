@@ -6,9 +6,11 @@ import {
   contactPatchShema,
   contactUpdateShema,
 } from "../../models/contacts/contacts.js";
-import { isValidId } from "../../middlewares/index.js";
+import { authenticate, isValidId } from "../../middlewares/index.js";
 
 const contactRouter = expres.Router();
+
+contactRouter.use(authenticate);
 
 contactRouter.get("/", contactControllerrs.getAllContacts);
 
