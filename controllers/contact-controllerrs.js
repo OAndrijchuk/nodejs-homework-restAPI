@@ -4,9 +4,14 @@ import { controllerWrapper } from "../decorators/index.js";
 
 const getAllContacts = async (req, res) => {
   const { _id } = req.user;
-  const { page = 1, limit = 20 } = req.query;
+  const { page = 1, limit = 20, favorite = "getAll" } = req.query;
+  const filteredObj =
+    favorite === "getAll" ? { owner: _id } : { owner: _id, favorite };
   const skip = (page - 1) * limit;
-  const rezult = await Contact.find({ owner: _id }, "", { skip, limit });
+  const rezult = await Contact.find(filteredObj, "", {
+    skip,
+    limit,
+  }).populate("owner", "email subscription");
   res.json(rezult);
 };
 

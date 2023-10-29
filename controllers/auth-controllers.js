@@ -7,6 +7,7 @@ import "dotenv/config";
 import { json } from "express";
 
 const { JWT_SECRET, JWT_EXPIRATION_TIME } = process.env;
+
 const signUp = async (req, res) => {
   const { email, password } = req.body;
   const hashPassword = await bcrypt.hash(password, 10);
@@ -52,6 +53,13 @@ const signIn = async (req, res) => {
   });
 };
 
+const chengSubscription = async (req, res) => {
+  const { _id } = req.user;
+  const { body } = req;
+  const user = await Users.findByIdAndUpdate(_id, body);
+  res.status(200).json(user);
+};
+
 const getCurrent = async (req, res) => {
   const { email, subscription } = req.user;
   res.status(200).json({ email, subscription });
@@ -66,6 +74,7 @@ const signOut = async (req, res) => {
 export default {
   signUp: controllerWrapper(signUp),
   signIn: controllerWrapper(signIn),
+  chengSubscription: controllerWrapper(chengSubscription),
   getCurrent: controllerWrapper(getCurrent),
   signOut: controllerWrapper(signOut),
 };

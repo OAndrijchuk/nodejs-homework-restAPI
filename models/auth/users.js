@@ -51,12 +51,6 @@ export const userSignUpShema = Joi.object({
     "string.empty": `"subscription" cannot be an empty field`,
     "string.min": `"subscription" should have a minimum length of {#limit}`,
   }),
-  //   token: Joi.string().required().messages({
-  //     "any.required": `"token" is a required field`,
-  //   }),
-  //   owner: Joi.boolean().required().messages({
-  //     "any.required": `"owner" is a required field`,
-  //   }),
 });
 export const userSignInShema = Joi.object({
   password: Joi.string().min(6).required().messages({
