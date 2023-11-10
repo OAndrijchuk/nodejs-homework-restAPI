@@ -1,6 +1,6 @@
 import Jimp from "jimp";
 import bcrypt from "bcryptjs";
-import { HttpError } from "../helpers/index.js";
+import { HttpError, sendEmail } from "../helpers/index.js";
 import Users from "../models/auth/users.js";
 import { controllerWrapper } from "../decorators/index.js";
 import jwt from "jsonwebtoken";
@@ -8,8 +8,9 @@ import "dotenv/config";
 import gravatar from 'gravatar';
 import fs from 'fs/promises';
 import path from 'path';
+import { nanoid } from 'nanoid';
 
-const { JWT_SECRET, JWT_EXPIRATION_TIME } = process.env;
+const { JWT_SECRET, JWT_EXPIRATION_TIME, BASE_URL } = process.env;
 const avatarPath = path.resolve('public', 'avatars');
 
 
@@ -22,16 +23,26 @@ const signUp = async (req, res) => {
     throw HttpError(409, "Email in use");
   }
   const newEmail = email.trim().toLowerCase();
-  const avatarURL = `${gravatar.url(newEmail, {s: '80', r: 'pg', d: 'mp'})}`
+  const avatarURL = `${gravatar.url(newEmail, { s: '80', r: 'pg', d: 'mp' })}`;
+  const verificationToken = nanoid();
   const newUser = await Users.create({
     ...req.body,
     password: hashPassword,
     avatarURL,
+    verificationToken,
   });
+  const massage = {
+    userEmail:email,
+    title: "NodeJS verification!",
+    bodyContent: `<a target="_blank" href="${BASE_URL}/users/verify/${verificationToken}">!!!Click to verify email!!!</a>`
+  };
+   sendEmail(massage);
+
   res.status(201).json({
     user: {
       email: newUser.email,
       subscription: newUser.subscription,
+      avatarURL,
     },
   });
 };
@@ -97,6 +108,42 @@ const chengAvatar = async (req, res) => {
   });
 };
 
+const verificationRequest = async (req, res) => {
+  const { verificationToken } = req.params;
+  const user = await Users.findOne({ verificationToken });
+  if (!user) {
+    throw HttpError(404, "Not found!");
+  }
+  await Users.findOneAndUpdate({ verificationToken: null, verify: true });
+  res.status(200).json({
+  message: 'Verification successful',
+});
+};
+
+const reverify = async (req, res) => {
+  const { email } = req.body;
+  const user = await Users.findOne({ email });
+  if (!user) {
+    throw HttpError(404, "User with this email not found");
+  }
+  if (user.verify) {
+    throw HttpError(400, "Verification has already been passed");
+  }
+  const verificationToken = nanoid();
+  const newUser = await Users.findOneAndUpdate({email},{verificationToken})
+  const massage = {
+    userEmail:email,
+    title: "NodeJS ReVerification!",
+    bodyContent: `<a target="_blank" href="${BASE_URL}/users/verify/${verificationToken}">!!!Click to verify email!!!</a>`
+  };
+   
+  sendEmail(massage);
+
+  res.status(200).json({
+  message: 'Verification email sent',
+});
+};
+
 export default {
   signUp: controllerWrapper(signUp),
   signIn: controllerWrapper(signIn),
@@ -104,4 +151,6 @@ export default {
   getCurrent: controllerWrapper(getCurrent),
   signOut: controllerWrapper(signOut),
   chengAvatar: controllerWrapper(chengAvatar),
+  verificationRequest: controllerWrapper(verificationRequest),
+  reverify: controllerWrapper(reverify),
 };

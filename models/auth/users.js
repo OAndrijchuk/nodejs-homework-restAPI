@@ -28,6 +28,14 @@ const userShema = new Schema(
     token: {
       type: String,
     },
+    verify: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      // required: [true, 'Verify token is required'],
+    },
   },
   { versionKey: false, timestamps: true }
 );
@@ -67,6 +75,14 @@ export const userSignInShema = Joi.object({
     "string.empty": `"email" cannot be an empty field`,
     "string.min": `"email" should have a minimum length of {#limit}`,
     "any.required": `"email" is a required field`,
+  }),
+});
+export const userVerifyShema = Joi.object({
+  email: Joi.string().min(3).required().pattern(regexpEmail).messages({
+    "string.base": `"email" should be a type of 'text'`,
+    "string.empty": `"email" cannot be an empty field`,
+    "string.min": `"email" should have a minimum length of {#limit}`,
+    "any.required": `Missing required field email`,
   }),
 });
 
