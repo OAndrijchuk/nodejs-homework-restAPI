@@ -4,12 +4,14 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const {DB_HOST,PORT}=process.env
+
 mongoose
-  .connect(process.env.DB_HOST)
+  .connect(DB_HOST)
   .then(() => {
-    app.listen(3000, () => {
+    app.listen(PORT||3000, () => {
       console.log(
-        "Database connection successful. Server running on port: 3000"
+        `Database connection successful. Server running on port: ${PORT}`
       );
     });
   })
