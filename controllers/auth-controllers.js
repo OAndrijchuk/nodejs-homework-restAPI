@@ -114,7 +114,7 @@ const verificationRequest = async (req, res) => {
   if (!user) {
     throw HttpError(404, "Not found!");
   }
-  await Users.findOneAndUpdate({ verificationToken: null, verify: true });
+  await Users.findOneAndUpdate({verificationToken},{ verificationToken: null, verify: true });
   res.status(200).json({
   message: 'Verification successful',
 });
