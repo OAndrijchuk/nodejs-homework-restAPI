@@ -4,9 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
  
 const sendEmail = ({ userEmail, title, bodyContent }) => {
-  console.log(userEmail);
-  console.log(title);
-  console.log(bodyContent);
+
 const { ELASICEMAIL_API_KEY, ELASICEMAIL_FROM } = process.env;
 const defaultClient = ElasticEmail.ApiClient.instance;
 const { apikey } = defaultClient.authentications;
